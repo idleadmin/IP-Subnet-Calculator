@@ -2,19 +2,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IP Subnet Calculator</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
       font-family: Arial, sans-serif;
       background: #f9f9f9;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      html, body {
+        align-items: center;
+        height: 100vh;
+      }
+
+      .ip-calculator {
+        height: auto;
+        margin-top: 0;
+        justify-content: center;
+      }
     }
 
     .ip-calculator {
@@ -103,15 +116,6 @@
       padding: 8px;
       border-radius: 5px;
       margin: 10px 0;
-    }
-
-    @media (max-width: 600px) {
-      .ip-calculator {
-        border: none;
-        padding: 10px;
-        height: 100%;
-        justify-content: center;
-      }
     }
   </style>
 </head>
