@@ -129,154 +129,133 @@
         <div id="error" class="error" style="display: none;"></div>
     </div>
 
-    <script>
-        function isValidIP(ip) {
-            const parts = ip.split('.');
-            if (parts.length !== 4) return false;
-            
-            for (let part of parts) {
-                const num = parseInt(part);
-                if (isNaN(num) || num < 0 || num > 255) return false;
-            }
-            return true;
+<script>
+    function isValidIP(ip) {
+        const parts = ip.split('.');
+        if (parts.length !== 4) return false;
+        
+        for (let part of parts) {
+            const num = parseInt(part);
+            if (isNaN(num) || num < 0 || num > 255) return false;
+        }
+        return true;
+    }
+    
+    function isPrivateIP(ip) {
+        const parts = ip.split('.').map(x => parseInt(x));
+        const firstOctet = parts[0];
+        const secondOctet = parts[1];
+        
+        if (firstOctet === 10) return 'Private (Class A)';
+        if (firstOctet === 172 && secondOctet >= 16 && secondOctet <= 31) return 'Private (Class B)';
+        if (firstOctet === 192 && secondOctet === 168) return 'Private (Class C)';
+        if (firstOctet === 169 && secondOctet === 254) return 'Link-Local (APIPA)';
+        if (firstOctet === 127) return 'Loopback (localhost)';
+        if (firstOctet >= 224 && firstOctet <= 239) return 'Multicast';
+        if (firstOctet >= 240) return 'Reserved';
+        
+        return 'Public';
+    }
+    
+    function ipToInt(ip) {
+        const parts = ip.split('.').map(x => parseInt(x));
+        return ((parts[0] << 24) >>> 0) + ((parts[1] << 16) >>> 0) + ((parts[2] << 8) >>> 0) + (parts[3] >>> 0);
+    }
+    
+    function intToIP(int) {
+        return [
+            (int >>> 24) & 255,
+            (int >>> 16) & 255,
+            (int >>> 8) & 255,
+            int & 255
+        ].join('.');
+    }
+    
+    function calculateSubnet() {
+        const ipInput = document.getElementById('ipAddress').value.trim();
+        const cidr = parseInt(document.getElementById('subnetMask').value);
+        const resultsDiv = document.getElementById('results');
+        const errorDiv = document.getElementById('error');
+        
+        resultsDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+        
+        if (!isValidIP(ipInput)) {
+            errorDiv.textContent = 'Please enter a valid IP address (e.g., 192.168.1.1)';
+            errorDiv.style.display = 'block';
+            return;
         }
         
-        function isPrivateIP(ip) {
-            const parts = ip.split('.').map(x => parseInt(x));
-            const firstOctet = parts[0];
-            const secondOctet = parts[1];
+        try {
+            const ipInt = ipToInt(ipInput);
+            const subnetMaskInt = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+            const subnetMask = intToIP(subnetMaskInt);
+            const networkInt = ipInt & subnetMaskInt;
+            const network = intToIP(networkInt);
+            const broadcastInt = networkInt | (~subnetMaskInt >>> 0);
+            const broadcast = intToIP(broadcastInt);
+            const firstHostInt = networkInt + 1;
+            const lastHostInt = broadcastInt - 1;
+            const firstHost = intToIP(firstHostInt);
+            const lastHost = intToIP(lastHostInt);
+            const totalHosts = Math.pow(2, 32 - cidr);
+            const usableHosts = totalHosts > 2 ? totalHosts - 2 : totalHosts; // Handle /31 and /32
+            const wildcardMask = intToIP(~subnetMaskInt >>> 0);
+            const ipType = isPrivateIP(ipInput);
             
-            // 10.0.0.0/8 (10.0.0.0 to 10.255.255.255)
-            if (firstOctet === 10) return 'Private (Class A)';
+            resultsDiv.innerHTML = `
+                <div class="result-row">
+                    <span class="result-label">IP Address Type:</span>
+                    <span class="result-value">${ipType}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Network Address:</span>
+                    <span class="result-value">${network}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Subnet Mask:</span>
+                    <span class="result-value">${subnetMask}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">CIDR Notation:</span>
+                    <span class="result-value">/${cidr}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Wildcard Mask:</span>
+                    <span class="result-value">${wildcardMask}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Broadcast Address:</span>
+                    <span class="result-value">${broadcast}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">First Host:</span>
+                    <span class="result-value">${firstHostInt < broadcastInt ? firstHost : 'N/A'}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Last Host:</span>
+                    <span class="result-value">${lastHostInt > networkInt ? lastHost : 'N/A'}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Hosts:</span>
+                    <span class="result-value">${totalHosts.toLocaleString()}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Usable Hosts:</span>
+                    <span class="result-value">${usableHosts.toLocaleString()}</span>
+                </div>
+            `;
             
-            // 172.16.0.0/12 (172.16.0.0 to 172.31.255.255)
-            if (firstOctet === 172 && secondOctet >= 16 && secondOctet <= 31) return 'Private (Class B)';
-            
-            // 192.168.0.0/16 (192.168.0.0 to 192.168.255.255)
-            if (firstOctet === 192 && secondOctet === 168) return 'Private (Class C)';
-            
-            // 169.254.0.0/16 (169.254.0.0 to 169.254.255.255) - Link Local
-            if (firstOctet === 169 && secondOctet === 254) return 'Link-Local (APIPA)';
-            
-            // 127.0.0.0/8 (127.0.0.0 to 127.255.255.255) - Loopback
-            if (firstOctet === 127) return 'Loopback (localhost)';
-            
-            // 224.0.0.0/4 (224.0.0.0 to 239.255.255.255) - Multicast
-            if (firstOctet >= 224 && firstOctet <= 239) return 'Multicast';
-            
-            // 240.0.0.0/4 (240.0.0.0 to 255.255.255.255) - Reserved
-            if (firstOctet >= 240) return 'Reserved';
-            
-            return 'Public';
+            resultsDiv.style.display = 'block';
+        } catch (error) {
+            errorDiv.textContent = 'Error calculating subnet. Please check your input.';
+            errorDiv.style.display = 'block';
         }
-        
-        function ipToInt(ip) {
-            const parts = ip.split('.').map(x => parseInt(x));
-            return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
-        }
-        
-        function intToIP(int) {
-            return [
-                (int >>> 24) & 255,
-                (int >>> 16) & 255,
-                (int >>> 8) & 255,
-                int & 255
-            ].join('.');
-        }
-        
-        function cidrToSubnetMask(cidr) {
-            const mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
-            return intToIP(mask);
-        }
-        
-        function calculateSubnet() {
-            const ipInput = document.getElementById('ipAddress').value.trim();
-            const cidr = parseInt(document.getElementById('subnetMask').value);
-            const resultsDiv = document.getElementById('results');
-            const errorDiv = document.getElementById('error');
-            
-            // Hide previous results
-            resultsDiv.style.display = 'none';
-            errorDiv.style.display = 'none';
-            
-            // Validate IP
-            if (!isValidIP(ipInput)) {
-                errorDiv.textContent = 'Please enter a valid IP address (e.g., 192.168.1.1)';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            try {
-                const ipInt = ipToInt(ipInput);
-                const subnetMaskInt = (0xFFFFFFFF << (32 - cidr)) >>> 0;
-                const subnetMask = intToIP(subnetMaskInt);
-                const networkInt = ipInt & subnetMaskInt;
-                const network = intToIP(networkInt);
-                const broadcastInt = networkInt | (0xFFFFFFFF >>> cidr);
-                const broadcast = intToIP(broadcastInt);
-                const firstHost = intToIP(networkInt + 1);
-                const lastHost = intToIP(broadcastInt - 1);
-                const totalHosts = Math.pow(2, 32 - cidr);
-                const usableHosts = totalHosts - 2;
-                const wildcardMask = intToIP(0xFFFFFFFF >>> cidr);
-                const ipType = isPrivateIP(ipInput);
-                
-                // Display results
-                resultsDiv.innerHTML = 
-                    <div class="result-row">
-                        <span class="result-label">IP Address Type:</span>
-                        <span class="result-value">${ipType}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Network Address:</span>
-                        <span class="result-value">${network}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Subnet Mask:</span>
-                        <span class="result-value">${subnetMask}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">CIDR Notation:</span>
-                        <span class="result-value">/${cidr}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Wildcard Mask:</span>
-                        <span class="result-value">${wildcardMask}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Broadcast Address:</span>
-                        <span class="result-value">${broadcast}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">First Host:</span>
-                        <span class="result-value">${firstHost}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Last Host:</span>
-                        <span class="result-value">${lastHost}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Hosts:</span>
-                        <span class="result-value">${totalHosts.toLocaleString()}</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Usable Hosts:</span>
-                        <span class="result-value">${usableHosts.toLocaleString()}</span>
-                    </div>
-                ;
-                
-                resultsDiv.style.display = 'block';
-                
-            } catch (error) {
-                errorDiv.textContent = 'Error calculating subnet. Please check your input.';
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        // Calculate on page load with default values
-        window.onload = function() {
-            calculateSubnet();
-        };
-    </script>
+    }
+    
+    window.onload = function() {
+        calculateSubnet();
+    };
+</script>
 </body>
 </html>
