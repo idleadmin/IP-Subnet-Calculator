@@ -10,58 +10,70 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background: #f9f9f9;
+      display: flex; /* Added for centering */
+      justify-content: center; /* Added for centering */
+      align-items: center; /* Added for centering */
+      min-height: 100vh; /* Ensure it takes full viewport height for centering */
     }
 
     .ip-calculator {
-      max-width: 600px;
+      width: 90%; /* Changed from max-width to width for better responsiveness */
+      max-width: 600px; /* Kept max-width to prevent it from getting too wide on very large screens */
       margin: 20px auto;
       padding: 20px;
       border: 2px solid #ddd;
       border-radius: 10px;
       background: #fff;
       box-sizing: border-box;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added a subtle shadow */
     }
 
     @media (max-width: 768px) {
       .ip-calculator {
         margin: 10px;
         padding: 15px;
+        width: calc(100% - 20px); /* Adjust width for smaller screens, accounting for margin */
       }
     }
 
     .ip-calculator h3 {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px; /* Increased margin for better spacing */
+      color: #333;
     }
 
     .input-group {
-      margin-bottom: 10px;
+      margin-bottom: 15px; /* Increased margin for better spacing */
     }
 
     .input-group label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px; /* Increased margin for better spacing */
       font-weight: bold;
+      color: #555;
     }
 
     .input-group input,
     .input-group select {
       width: 100%;
-      padding: 8px;
+      padding: 10px; /* Increased padding for better input feel */
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px; /* Slightly more rounded corners */
       font-size: 1rem;
+      box-sizing: border-box; /* Ensures padding doesn't add to the width */
     }
 
     .calculate-btn {
-      padding: 10px;
+      width: 100%; /* Make button full width */
+      padding: 12px; /* Increased padding for better button feel */
       background: #00c97f;
       color: white;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: 1.1rem; /* Slightly larger font for button */
       cursor: pointer;
-      margin: 15px 0;
+      margin: 20px 0; /* Adjusted margin */
+      transition: background 0.3s ease; /* Smooth transition on hover */
     }
 
     .calculate-btn:hover {
@@ -70,16 +82,17 @@
 
     .results {
       background: #fdfdfd;
-      padding: 10px;
+      padding: 15px; /* Increased padding */
       border-radius: 5px;
       border: 1px solid #ddd;
       font-size: 0.95rem;
+      margin-top: 20px; /* Added margin to separate from button */
     }
 
     .result-row {
       display: flex;
       justify-content: space-between;
-      padding: 5px 0;
+      padding: 8px 0; /* Adjusted padding */
       border-bottom: 1px solid #eee;
     }
 
@@ -89,19 +102,23 @@
 
     .result-label {
       font-weight: bold;
+      color: #333;
     }
 
     .result-value {
       color: #00c97f;
       font-family: monospace;
+      text-align: right; /* Align value to the right */
     }
 
     .error {
       color: #d63384;
       background: #f8d7da;
-      padding: 8px;
+      padding: 10px; /* Increased padding */
       border-radius: 5px;
-      margin: 10px 0;
+      margin: 15px 0; /* Adjusted margin */
+      text-align: center;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -223,19 +240,21 @@
       }
     }
 
-    // Auto-resize iframe
-    window.addEventListener("load", () => {
+    // Auto-resize iframe (retained and adjusted for potential parent page)
+    const resizeIframe = () => {
       const height = document.body.scrollHeight;
-      window.parent.postMessage({ type: "resize-iframe", height }, "*");
-    });
+      // Check if window.parent is accessible and not self
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "resize-iframe", height: height + 20 }, "*"); // Add a small buffer
+      }
+    };
 
-    window.addEventListener("resize", () => {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ type: "resize-iframe", height }, "*");
-    });
+    window.addEventListener("load", resizeIframe);
+    window.addEventListener("resize", resizeIframe);
 
     window.onload = function () {
       calculateSubnet();
+      resizeIframe(); // Call on load to set initial height
     };
   </script>
 </body>
