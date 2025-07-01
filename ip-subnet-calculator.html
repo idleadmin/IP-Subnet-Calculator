@@ -6,41 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IP Subnet Calculator</title>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
       background: #f9f9f9;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-
-    @media (max-width: 768px) {
-      html, body {
-        align-items: center;
-        height: 100vh;
-      }
-
-      .ip-calculator {
-        height: auto;
-        margin-top: 0;
-        justify-content: center;
-      }
     }
 
     .ip-calculator {
-      width: 100%;
       max-width: 600px;
-      padding: 15px;
+      margin: 20px auto;
+      padding: 20px;
       border: 2px solid #ddd;
       border-radius: 10px;
       background: #fff;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      height: auto;
+    }
+
+    @media (max-width: 768px) {
+      .ip-calculator {
+        margin: 10px;
+        padding: 15px;
+      }
     }
 
     .ip-calculator h3 {
