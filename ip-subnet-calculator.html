@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -223,6 +222,17 @@
         errorDiv.style.display = 'block';
       }
     }
+
+    // Auto-resize iframe
+    window.addEventListener("load", () => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ type: "resize-iframe", height }, "*");
+    });
+
+    window.addEventListener("resize", () => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ type: "resize-iframe", height }, "*");
+    });
 
     window.onload = function () {
       calculateSubnet();
