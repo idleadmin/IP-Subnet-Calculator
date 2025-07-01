@@ -1,79 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IP Subnet Calculator</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
+      height: 100vh;
       font-family: Arial, sans-serif;
       background: #f9f9f9;
-      display: flex; /* Added for centering */
-      justify-content: center; /* Added for centering */
-      align-items: center; /* Added for centering */
-      min-height: 100vh; /* Ensure it takes full viewport height for centering */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .ip-calculator {
-      width: 90%; /* Changed from max-width to width for better responsiveness */
-      max-width: 600px; /* Kept max-width to prevent it from getting too wide on very large screens */
-      margin: 20px auto;
-      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      padding: 15px;
       border: 2px solid #ddd;
       border-radius: 10px;
       background: #fff;
       box-sizing: border-box;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added a subtle shadow */
-    }
-
-    @media (max-width: 768px) {
-      .ip-calculator {
-        margin: 10px;
-        padding: 15px;
-        width: calc(100% - 20px); /* Adjust width for smaller screens, accounting for margin */
-      }
+      display: flex;
+      flex-direction: column;
+      height: auto;
     }
 
     .ip-calculator h3 {
       text-align: center;
-      margin-bottom: 20px; /* Increased margin for better spacing */
-      color: #333;
+      margin-bottom: 15px;
     }
 
     .input-group {
-      margin-bottom: 15px; /* Increased margin for better spacing */
+      margin-bottom: 10px;
     }
 
     .input-group label {
       display: block;
-      margin-bottom: 8px; /* Increased margin for better spacing */
+      margin-bottom: 5px;
       font-weight: bold;
-      color: #555;
     }
 
     .input-group input,
     .input-group select {
       width: 100%;
-      padding: 10px; /* Increased padding for better input feel */
+      padding: 8px;
       border: 1px solid #ccc;
-      border-radius: 5px; /* Slightly more rounded corners */
+      border-radius: 4px;
       font-size: 1rem;
-      box-sizing: border-box; /* Ensures padding doesn't add to the width */
     }
 
     .calculate-btn {
-      width: 100%; /* Make button full width */
-      padding: 12px; /* Increased padding for better button feel */
+      padding: 10px;
       background: #00c97f;
       color: white;
       border: none;
       border-radius: 5px;
-      font-size: 1.1rem; /* Slightly larger font for button */
+      font-size: 1rem;
       cursor: pointer;
-      margin: 20px 0; /* Adjusted margin */
-      transition: background 0.3s ease; /* Smooth transition on hover */
+      margin: 15px 0;
     }
 
     .calculate-btn:hover {
@@ -82,17 +70,16 @@
 
     .results {
       background: #fdfdfd;
-      padding: 15px; /* Increased padding */
+      padding: 10px;
       border-radius: 5px;
       border: 1px solid #ddd;
       font-size: 0.95rem;
-      margin-top: 20px; /* Added margin to separate from button */
     }
 
     .result-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0; /* Adjusted padding */
+      padding: 5px 0;
       border-bottom: 1px solid #eee;
     }
 
@@ -102,23 +89,28 @@
 
     .result-label {
       font-weight: bold;
-      color: #333;
     }
 
     .result-value {
       color: #00c97f;
       font-family: monospace;
-      text-align: right; /* Align value to the right */
     }
 
     .error {
       color: #d63384;
       background: #f8d7da;
-      padding: 10px; /* Increased padding */
+      padding: 8px;
       border-radius: 5px;
-      margin: 15px 0; /* Adjusted margin */
-      text-align: center;
-      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 600px) {
+      .ip-calculator {
+        border: none;
+        padding: 10px;
+        height: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -240,21 +232,8 @@
       }
     }
 
-    // Auto-resize iframe (retained and adjusted for potential parent page)
-    const resizeIframe = () => {
-      const height = document.body.scrollHeight;
-      // Check if window.parent is accessible and not self
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: "resize-iframe", height: height + 20 }, "*"); // Add a small buffer
-      }
-    };
-
-    window.addEventListener("load", resizeIframe);
-    window.addEventListener("resize", resizeIframe);
-
     window.onload = function () {
       calculateSubnet();
-      resizeIframe(); // Call on load to set initial height
     };
   </script>
 </body>
